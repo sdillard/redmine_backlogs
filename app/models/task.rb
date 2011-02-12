@@ -10,15 +10,24 @@ class Task < Issue
   end
 
   def self.create_with_relationships(params, user_id, project_id, is_impediment = false)
+<<<<<<< HEAD
     if Issue.const_defined? "SAFE_ATTRIBUTES"
       attribs = params.clone.delete_if {|k,v| !Task::SAFE_ATTRIBUTES.include?(k) }
     else
       attribs = params.clone.delete_if {|k,v| !Task.safe_attributes.include?(k) }
     end
     attribs[:remaining_hours] = 0 if IssueStatus.find(params[:status_id]).is_closed?
+=======
+    attribs = params.clone.delete_if {|k,v| !Issue.new.safe_attribute_names.include?(k) }
+    attribs[:estimated_hours] = 0 if IssueStatus.find(params[:status_id]).is_closed?
+>>>>>>> 726c5990ee1663f147e43f8a56bd4ca83f22bedd
     attribs['author_id'] = user_id
     attribs['tracker_id'] = Task.tracker
-    attribs['project_id'] = project_id
+    if attribs.has_key?('parent_issue_id') then
+        attribs['project_id'] = Task.find(attribs['parent_issue_id']).project_id
+    else
+        attribs['project_id'] = project_id
+    end    
 
     task = new(attribs)
 
@@ -57,11 +66,15 @@ class Task < Issue
   end
 
   def update_with_relationships(params, is_impediment = false)
+<<<<<<< HEAD
     if Issue.const_defined? "SAFE_ATTRIBUTES"
       attribs = params.clone.delete_if {|k,v| !Task::SAFE_ATTRIBUTES.include?(k) }
     else
       attribs = params.clone.delete_if {|k,v| !Task.safe_attributes.include?(k) }
     end
+=======
+    attribs = params.clone.delete_if {|k,v| !Task.safe_attributes.include?(k) }
+>>>>>>> 726c5990ee1663f147e43f8a56bd4ca83f22bedd
     attribs[:remaining_hours] = 0 if IssueStatus.find(params[:status_id]).is_closed?
 
     valid_relationships = if is_impediment && params[:blocks] #if blocks param was not sent, that means the impediment was just dragged

@@ -3,6 +3,7 @@ class Story < Issue
 
     acts_as_list :scope => :project
 
+    def self.backlog(project, sprint, options={})
     def self.condition(project_id, sprint_id, extras=[])
       if sprint_id.nil?  
         c = ["
@@ -36,8 +37,24 @@ class Story < Issue
 
 
       Story.find(:all,
-            :order => Story::ORDER,
-            :conditions => Story.condition(project_id, sprint_id),
+            # this forces NULLS-LAST ordering
+            :order => 'case when issues.position is null then 1 else 0 end ASC, case when issues.position is NULL then issues.id else issues.position end ASC',
+            :conditions => [
+                "parent_id is NULL
+                  and project_id in (?,?)
+                  and tracker_id in (?)
+                  and (
+                    (fixed_version_id is NULL and ? is NULL)
+                    or
+                    (fixed_version_id = ? and not ? is NULL)
+                    )
+                  and (is_closed = ? or not ? is NULL)", 
+                project.id, project.descendants.active.collect{|p| p.id},
+                Story.trackers,
+                sprint,
+                sprint, sprint,
+                false, sprint
+                ],
             :joins => :status,
             :limit => options[:limit]).each_with_index {|story, i|
         story.rank = i + 1
