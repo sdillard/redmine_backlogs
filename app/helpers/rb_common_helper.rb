@@ -113,4 +113,9 @@ module RbCommonHelper
   def remaining_hours(item)
     item.remaining_hours.blank? || item.remaining_hours==0 ? "" : item.remaining_hours
   end
+  
+  def parent_layout(layout)
+    @content_for_layout = self.output_buffer
+    self.output_buffer = render(:file => "layouts/#{layout}")
+  end
 end

@@ -16,9 +16,9 @@ class RbMasterBacklogsController < RbApplicationController
     @product_backlog = { :sprint => nil, :stories => product_backlog_stories }
     @sprint_backlogs = sprints.map{ |s| { :sprint => s, :stories => s.stories } }
 
-    respond_to do |format|
-      format.html { render :layout => "rb"}
-    end
+    #respond_to do |format|
+    #  format.html { render :file => "layouts/base", :layout => "rb_new"}
+    #end
   end
   
 end
